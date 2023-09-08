@@ -2,9 +2,15 @@
 
 上記のワークショップに使用する発表資料，データ，Rコードの置き場です。
 
-当日の投影資料は下記のURLから御覧ください。
+# 投影資料
+当日の投影資料は下記のURLから御覧ください。資料の中に，分析部分で必要なRコードも全て含まれています。slides.Rmdというファイルが元のファイルです。当日ギリギリまで更新予定ですので，Rmdファイルをダウンロードされる方は，最新版をご利用ください。
 
 [https://tam07pb915.github.io/JLTA_2023_WS/](https://tam07pb915.github.io/JLTA_2023_WS/)
+
+# 分析に用いるデータ
+- AJ.csv: 容認性判断課題のデータです。long-formatになっています。
+- Translation.csv: 翻訳課題のデータです。long-formatになっています。
+- OQPT_results.csv: 熟達度のテストとして用いたOxford Quick Placement Testのデータです。参加者×問題番号の行列になっています。
 
 ### Contact
 #### [Yu TAMURA](https://tamurayu.wordpress.com/ "website")
