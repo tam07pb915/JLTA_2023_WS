@@ -2,6 +2,10 @@
 
 上記のワークショップに使用する発表資料，データ，Rコードの置き場です。
 
+当日の投影資料は下記のURLから御覧ください。
+
+[https://tam07pb915.github.io/JLTA_2023_WS/](https://tam07pb915.github.io/JLTA_2023_WS/)
+
 ### Contact
 #### [Yu TAMURA](https://tamurayu.wordpress.com/ "website")
 ##### Associate Professor
