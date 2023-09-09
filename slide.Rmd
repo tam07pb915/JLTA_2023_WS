@@ -6,6 +6,7 @@ date: "2023-09-10"
 output:
   slidy_presentation:
     css: pulse.css
+    footer: "田村 (2023) GLMMの分析手法を身につける"
 ---
 
 ---
@@ -361,6 +362,21 @@ $$=\exp(\beta_{0})*\exp(\beta_{1}X_{1})...$$
   2. 右端のダウンロードアイコンをクリックしてダウンロードして，zipファイルを解凍
   3. 解凍したZIPファイルの中のWS.Rprojを起動
   4. slide.Rmdの中にあるRコードを走らせていく
+* コードの実行の仕方
+  - Rmdファイル上でコードを実行する場合
+    - カーソルのある行のコードを実行
+      - Windows: Ctrl + Enter
+      - Mac: Command + Enter
+    - チャンクに囲まれているコード（あるいは複数のコード）をまとめて実行
+  　  - Windows: Ctrl + Shift + Enter
+      - Mac: Command + Shift + Enter
+  - コードをコピペして実行する場合
+   - `>`のマークが出ているところに，コンソール（RStudioの左下のペイン）にコピペしてEnter
+   - 右上にRmdファイルを開いて，そこでコードを実行するほうがいいです
+ - コードを実行した結果がコンソールに表示されるかは設定で選択可
+   - `Tools -> Global Options -> Rmarkdown`
+   - `Show output inline for all R markdown documents`のチェックボックス   
+   
 
 ## すすめ方
 * ここからは，実際にRを動かしながらデータ分析を行っていきます
@@ -1337,7 +1353,7 @@ contrast(.,"pairwise",by="z.oqpt")
 ```
 
 ### 解釈
-- z.oqpt = -1.864のとき（熟達度が最も低いとき），2水準の差は-0.641で非有意になっています（_p_ = .067）。
+- z.oqpt = -1.864のとき（熟達度が最も低いとき），2水準の差は非有意になっています。
 - しかしながら，熟達度が高くなれば，JonlyとBaselineの差は統計的に有意になっています。
 - この推定値は，Baselineを0としたダミー変数を使ったモデルでは係数の符号が逆になりますが，値は同じです（下記参照）。
 
@@ -1358,6 +1374,42 @@ oqpt_sum %>%
 見てみると，26点です。これはCEFRでいうとA2レベルくらいです。A2レベルくらいだと，Baselineに対して「これは英語として自然ではない」と考えるのとJonlyに対して「これは英語として自然ではない」と答えるのが同じくらいの確率だということになります。
 
 ただし，26点の学習者はたった1名であり，_p_値も有意水準の5%に近いので，この結果を強く主張することには慎重になるべきでしょう。
+
+### 別の方法（余談）
+- 今回は時間の関係で`emmeans()`関数を使いましたが，GLMMモデルの中で熟達度の影響を見ることもできます
+- `z.oqpt`変数の任意のポイントを基準点の0(reference-level)にしてモデルに投入し，その時のもう一方の変数（今回の場合は`Itemtype_d_J`）の係数を見ます
+- 0, 25, 50, 75, 100パーセンタイルを基準点にすることを考えてみます
+
+```{r}
+dat_n2 %>% 
+  dplyr::distinct(z.oqpt) %>% 
+  pull(z.oqpt) %>% #1列だけ取ってくる関数です
+  quantile(., probs = c(0,0.25, 0.5, 0.75,1.00))->percentiles #パーセンタイルを取得してpercentilesという変数に入れる
+print(percentiles)
+```
+
+0パーセンタイル（最小値）の時を例にします。
+
+```{r}
+dat_n2$p0 <- dat_n2$z.oqpt-percentiles[1] 
+dat_n2 %>% 
+  filter(p0 == 0) %>% 
+  head()
+```
+
+こうすると，p0という変数はz.oqptが`r percentiles[1]`のときに0となっていることがわかります。つまり，p0という変数は，z.oqptが最小値のときがreference levelになります。よって，z.oqptのかわりにp0という変数を入れて次のようにモデルを作ったときのもう一方の変数（`Itemtype_d_J`）の係数を見る（頑健にいくなら95%CIを計算して信頼区間がゼロを含むかを確認）ことで，熟達度が最小値のときのもう一方の変数の影響を検討できます。
+
+```{r}
+m_n5<-list()
+system.time(m_n5[[1]] <-glmer(res ~ z.ColFreq_log+p0*Itemtype_d_J+(1+Itemtype_d_J|subject)+(1|itemID),
+             data = dat_n2,
+             family=binomial,
+             glmerControl(optimizer=c("bobyqa"),optCtrl = list(maxfun=2e5))))
+summary(m_n5[[1]])
+```
+
+上でやったemmeans関数の出力結果と見比べてみてください。推定値（Estimate)と有意確率が同じになっていると思います。これを同じことを，25, 50, 75, 100パーセンタイルでもやれば，emmeansと同じことができます（どのポイントで推定するかはemmeansでもこの方法でも任意に選べます）。
+
 
 # 結果の報告
 - 分析の結果を報告する際には，下記を報告しましょう。
@@ -1381,10 +1433,9 @@ oqpt_sum %>%
 - ロジスティック回帰については，下記のテクニカルレポートと，それに基づくWS資料もあります。合わせてお読みいただくと理解が深まるかと思います
   - 田村祐（2016）「外国語教育研究における二値データの分析－ロジスティック回帰を例に－」『外国語教育メディア学会中部支部外国語教育基礎研究部会2015年度報告論集』29–82.[リンク](https://www.letchubu.net/modules/xpwiki/?2015%E5%B9%B4%E5%BA%A6%E5%A0%B1%E5%91%8A%E8%AB%96%E9%9B%86)
   - 田村祐 (2019). 「統計ワークショップ」JACET英語語彙・英語辞書・リーディング研究会合同研究会. 早稲田大学.[資料](https://github.com/tam07pb915/JACET-SIG_GLMM-Workshop)
-- 今回は割りとデータ分析のかなり泥臭い部分満載でしたが，これを補う資料が下記の資料です
+- 今回はわりとデータ分析のかなり泥臭い部分満載でしたが，これを補う資料が下記の資料です
 - [一般化線形混合モデルの実践：気をつけたい3つのポイント](https://speakerdeck.com/tam07pb915/2021-11-06-lmm-and-glmm)
-- 論文での報告など，今回扱いきれなかった部分は上記資料を御覧ください
-
+- 論文での報告など，今回扱いきれなかった部分は上記資料と次ページの参考文献を御覧ください
 
 # 参考文献リスト
 - Barr, D. J., Levy, R., Scheepers, C., and Tily, H. J. (2013). Random effects structure for confirmatory hypothesis testing: Keep it maximal. _Journal of memory and language_, 68(3), 255–278.
