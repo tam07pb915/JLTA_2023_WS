@@ -357,14 +357,15 @@ $$=\exp(\beta_{0})*\exp(\beta_{1}X_{1})...$$
 # 準備
 ## RStudioの起動
 * ファイルのダウンロード
- 1. Clone or download->Download ZIPでファイルをすべてDLし，解凍
- 2. 解凍したZIPファイルの中のWS.Rprojを起動
- 3. slide.Rmdの中にあるRコードを走らせていく
+  1. [GitHub](https://github.com/tam07pb915/JLTA_2023_WS)にいき，"Resources.zip"をクリック
+  2. 右端のダウンロードアイコンをクリックしてダウンロードして，zipファイルを解凍
+  3. 解凍したZIPファイルの中のWS.Rprojを起動
+  4. slide.Rmdの中にあるRコードを走らせていく
 
 ## すすめ方
 * ここからは，実際にRを動かしながらデータ分析を行っていきます
 * これより先，灰色の背景で囲まれた部分は全てRのコードを示しているとご理解ください
-* GitHubから.Rmdファイルまたは.htmlファイルをDLしてコピペすることをおすすめします
+* GitHubからslide.Rmdファイルまたはslide.htmlファイルをDLしてコピペすることをおすすめします
 
 # データ分析の下準備
 ## パッケージのインストール
@@ -1184,6 +1185,7 @@ system.time(m_n3[[2]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_c+(1+z.oqpt*It
              family=binomial,
              glmerControl(optimizer=c("bobyqa"),optCtrl = list(maxfun=2e5))))
 ```
+
 まだ同じエラーが出ます。
 
 モデルの中身を見て，どれを除外するか，見当をつけましょう。
