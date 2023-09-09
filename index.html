@@ -8,6 +8,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="author" content="田村祐（関西大学）" />
   <meta name="date" content="2023-09-10" />
+  <meta name="copyright" content="田村 (2023) GLMMの分析手法を身につける" />
   <title>Rを用いた一般化線形混合モデル（GLMM）の分析手法を身につける:言語研究分野の事例をもとに</title>
   <style type="text/css">
 code{white-space: pre-wrap;}
@@ -1030,6 +1031,30 @@ influence）が容認性判断課題の正答率に与える影響は熟達度�
 <li>解凍したZIPファイルの中のWS.Rprojを起動</li>
 <li>slide.Rmdの中にあるRコードを走らせていく</li>
 </ol></li>
+<li>コードの実行の仕方
+<ul>
+<li>Rmdファイル上でコードを実行する場合
+<ul>
+<li>カーソルのある行のコードを実行
+<ul>
+<li>Windows: Ctrl + Enter</li>
+<li>Mac: Command + Enter</li>
+</ul></li>
+<li>チャンクに囲まれているコード（あるいは複数のコード）をまとめて実行
+　 - Windows: Ctrl + Shift + Enter
+<ul>
+<li>Mac: Command + Shift + Enter</li>
+</ul></li>
+</ul></li>
+<li>コードをコピペして実行する場合</li>
+<li><code>&gt;</code>のマークが出ているところに，コンソール（RStudioの左下のペイン）にコピペしてEnter</li>
+<li>右上にRmdファイルを開いて，そこでコードを実行するほうがいいです</li>
+</ul></li>
+<li>コードを実行した結果がコンソールに表示されるかは設定で選択可
+<ul>
+<li><code>Tools -&gt; Global Options -&gt; Rmarkdown</code></li>
+<li><code>Show output inline for all R markdown documents</code>のチェックボックス</li>
+</ul></li>
 </ul>
 <h2 id="すすめ方">すすめ方</h2>
 <ul>
@@ -1262,7 +1287,7 @@ alpha）をチェック</h2>
 ##              lower alpha upper
 ## Feldt         0.68  0.80  0.88
 ## Duhachek      0.70  0.80  0.89
-## bootstrapped  0.64  0.79  0.88
+## bootstrapped  0.64  0.79  0.87
 ## 
 ##  Reliability if an item is dropped:
 ##     raw_alpha std.alpha G6(smc) average_r S/N var.r med.r
@@ -2879,7 +2904,7 @@ Scoreを入れたモデルをベースに</h2>
 <span id="cb125-4"><a href="#cb125-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##   1.699   0.009   1.709</code></pre>
+##   1.040   0.001   1.043</code></pre>
 <p>残念ながら収束しません。</p>
 <div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" tabindex="-1"></a><span class="fu">summary</span>(m_y4[[<span class="dv">5</span>]])</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -2931,14 +2956,14 @@ Scoreを入れたモデルをベースに</h2>
 <span id="cb130-3"><a href="#cb130-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb130-4"><a href="#cb130-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.048   0.003   1.053</code></pre>
+##    0.65    0.00    0.65</code></pre>
 <p>収束したようです。では，参加者のランダム傾きの相関パラメータを戻してみましょう。</p>
 <div class="sourceCode" id="cb132"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" tabindex="-1"></a><span class="fu">system.time</span>(m_y4[[<span class="dv">7</span>]] <span class="ot">&lt;-</span><span class="fu">glmer</span>(res <span class="sc">~</span> z.MIScore_log<span class="sc">+</span>z.ColFreq_log<span class="sc">+</span>z.oqpt<span class="sc">*</span>Itemtype_c<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>z.oqpt<span class="sc">|</span>subject)<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>itemID),</span>
 <span id="cb132-2"><a href="#cb132-2" tabindex="-1"></a>             <span class="at">data =</span> dat_y,</span>
 <span id="cb132-3"><a href="#cb132-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb132-4"><a href="#cb132-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.268   0.005   1.296</code></pre>
+##   0.674   0.001   0.674</code></pre>
 <p>収束しました。尤度比検定してみます。</p>
 <div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" tabindex="-1"></a><span class="fu">anova</span>(m_y4[[<span class="dv">7</span>]],m_y4[[<span class="dv">6</span>]])</span></code></pre></div>
 <pre><code>## Data: dat_y
@@ -3210,7 +3235,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb169-4"><a href="#cb169-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##  43.089   0.161  43.716</code></pre>
+##  25.153   0.071  25.227</code></pre>
 <p><code>?isSingular</code>のエラーが出ています。主成分分析の結果を見てみます。</p>
 <div class="sourceCode" id="cb172"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb172-1"><a href="#cb172-1" tabindex="-1"></a><span class="fu">rePCA</span>(m_n3[[<span class="dv">1</span>]]) <span class="sc">%&gt;%</span> summary</span></code></pre></div>
 <pre><code>## $itemID
@@ -3233,7 +3258,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb174-4"><a href="#cb174-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##  12.477   0.055  12.547</code></pre>
+##   7.598   0.034   7.644</code></pre>
 <p>まだ同じエラーが出ます。</p>
 <p>モデルの中身を見て，どれを除外するか，見当をつけましょう。</p>
 <div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb177-1"><a href="#cb177-1" tabindex="-1"></a><span class="fu">summary</span>(m_n3[[<span class="dv">2</span>]])</span></code></pre></div>
@@ -3289,7 +3314,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb179-4"><a href="#cb179-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##   8.843   0.030   8.867</code></pre>
+##   5.424   0.022   5.447</code></pre>
 <p>まだダメです。</p>
 <div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb182-1"><a href="#cb182-1" tabindex="-1"></a><span class="fu">rePCA</span>(m_n3[[<span class="dv">3</span>]]) <span class="sc">%&gt;%</span> summary</span></code></pre></div>
 <pre><code>## $itemID
@@ -3357,7 +3382,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb186-4"><a href="#cb186-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##   2.926   0.031   2.958</code></pre>
+##   1.809   0.005   1.813</code></pre>
 <p>まだ問題があります。</p>
 <div class="sourceCode" id="cb189"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb189-1"><a href="#cb189-1" tabindex="-1"></a><span class="fu">rePCA</span>(m_n3[[<span class="dv">4</span>]]) <span class="sc">%&gt;%</span> summary</span></code></pre></div>
 <pre><code>## $itemID
@@ -3422,7 +3447,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb193-3"><a href="#cb193-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb193-4"><a href="#cb193-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.625   0.006   1.632</code></pre>
+##   0.996   0.002   0.998</code></pre>
 <p>モデルが収束しました。</p>
 <div class="sourceCode" id="cb195"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb195-1"><a href="#cb195-1" tabindex="-1"></a><span class="fu">summary</span>(m_n3[[<span class="dv">5</span>]])</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -3469,7 +3494,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb197-3"><a href="#cb197-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb197-4"><a href="#cb197-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   2.273   0.013   2.286</code></pre>
+##   1.236   0.003   1.239</code></pre>
 <div class="sourceCode" id="cb199"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb199-1"><a href="#cb199-1" tabindex="-1"></a><span class="fu">anova</span>(m_n3[[<span class="dv">5</span>]],m_n3[[<span class="dv">6</span>]])</span></code></pre></div>
 <pre><code>## Data: dat_n2
 ## Models:
@@ -3543,7 +3568,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb208-3"><a href="#cb208-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb208-4"><a href="#cb208-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.090   0.004   1.094</code></pre>
+##   0.670   0.002   0.672</code></pre>
 <div class="sourceCode" id="cb210"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb210-1"><a href="#cb210-1" tabindex="-1"></a><span class="fu">summary</span>(m_n4[[<span class="dv">1</span>]])</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
@@ -3593,7 +3618,7 @@ level）にしたダミー変数を使って回帰モデルを作ってみます
 <span id="cb213-3"><a href="#cb213-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb213-4"><a href="#cb213-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.896   0.007   1.903</code></pre>
+##   1.167   0.003   1.169</code></pre>
 <p>結果はいかに。</p>
 <div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb215-1"><a href="#cb215-1" tabindex="-1"></a><span class="fu">summary</span>(m_n4[[<span class="dv">2</span>]])</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -3662,8 +3687,7 @@ level）にしたダミー変数を使って回帰モデルを作ってみます
 <h3 id="解釈-1">解釈</h3>
 <ul>
 <li>z.oqpt =
--1.864のとき（熟達度が最も低いとき），2水準の差は-0.641で非有意になっています（<em>p</em>
-= .067）。</li>
+-1.864のとき（熟達度が最も低いとき），2水準の差は非有意になっています。</li>
 <li>しかしながら，熟達度が高くなれば，JonlyとBaselineの差は統計的に有意になっています。</li>
 <li>この推定値は，Baselineを0としたダミー変数を使ったモデルでは係数の符号が逆になりますが，値は同じです（下記参照）。</li>
 </ul>
@@ -3703,6 +3727,111 @@ level）にしたダミー変数を使って回帰モデルを作ってみます
 ## 6   31 -1.079428      27</code></pre>
 <p>見てみると，26点です。これはCEFRでいうとA2レベルくらいです。A2レベルくらいだと，Baselineに対して「これは英語として自然ではない」と考えるのとJonlyに対して「これは英語として自然ではない」と答えるのが同じくらいの確率だということになります。</p>
 <p>ただし，26点の学習者はたった1名であり，_p_値も有意水準の5%に近いので，この結果を強く主張することには慎重になるべきでしょう。</p>
+<h3 id="別の方法余談">別の方法（余談）</h3>
+<ul>
+<li>今回は時間の関係で<code>emmeans()</code>関数を使いましたが，GLMMモデルの中で熟達度の影響を見ることもできます</li>
+<li><code>z.oqpt</code>変数の任意のポイントを基準点の0(reference-level)にしてモデルに投入し，その時のもう一方の変数（今回の場合は<code>Itemtype_d_J</code>）の係数を見ます</li>
+<li>0, 25, 50, 75,
+100パーセンタイルを基準点にすることを考えてみます</li>
+</ul>
+<div class="sourceCode" id="cb223"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb223-1"><a href="#cb223-1" tabindex="-1"></a>dat_n2 <span class="sc">%&gt;%</span> </span>
+<span id="cb223-2"><a href="#cb223-2" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">distinct</span>(z.oqpt) <span class="sc">%&gt;%</span> </span>
+<span id="cb223-3"><a href="#cb223-3" tabindex="-1"></a>  <span class="fu">pull</span>(z.oqpt) <span class="sc">%&gt;%</span> <span class="co">#1列だけ取ってくる関数です</span></span>
+<span id="cb223-4"><a href="#cb223-4" tabindex="-1"></a>  <span class="fu">quantile</span>(., <span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>,<span class="fl">1.00</span>))<span class="ot">-&gt;</span>percentiles <span class="co">#パーセンタイルを取得してpercentilesという変数に入れる</span></span>
+<span id="cb223-5"><a href="#cb223-5" tabindex="-1"></a><span class="fu">print</span>(percentiles)</span></code></pre></div>
+<pre><code>##          0%         25%         50%         75%        100% 
+## -1.86362839 -0.72653830  0.01845177  0.92028184  2.37105197</code></pre>
+<p>0パーセンタイル（最小値）の時を例にします。</p>
+<div class="sourceCode" id="cb225"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb225-1"><a href="#cb225-1" tabindex="-1"></a>dat_n2<span class="sc">$</span>p0 <span class="ot">&lt;-</span> dat_n2<span class="sc">$</span>z.oqpt<span class="sc">-</span>percentiles[<span class="dv">1</span>] </span>
+<span id="cb225-2"><a href="#cb225-2" tabindex="-1"></a>dat_n2 <span class="sc">%&gt;%</span> </span>
+<span id="cb225-3"><a href="#cb225-3" tabindex="-1"></a>  <span class="fu">filter</span>(p0 <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb225-4"><a href="#cb225-4" tabindex="-1"></a>  <span class="fu">head</span>()</span></code></pre></div>
+<pre><code>##   oqpt    z.oqpt subject itemID pres.order               Item Itemtype Length
+## 1   26 -1.863628      33     47         73 active personality    Jonly     18
+## 2   26 -1.863628      33     48        105          cheap pay    Jonly      9
+## 3   26 -1.863628      33     49         16       dark society    Jonly     12
+## 4   26 -1.863628      33     50        121   delicious season    Jonly     16
+## 5   26 -1.863628      33     51         52            far eye    Jonly      7
+## 6   26 -1.863628      33     52        122     frank question    Jonly     14
+##   ColFreq AdjFreq NounFreq MIScore answer res   RT ColFreq_log AdjFreq_log
+## 1       1   37799    18372       1  FALSE   0 1401     0.00000   10.540038
+## 2       1   16483   111661       1  FALSE   0 1794     0.00000    9.710085
+## 3       1   84962    94963       1  FALSE   0 1777     0.00000   11.349959
+## 4       1    7916   114909       1  FALSE   1 1162     0.00000    8.976641
+## 5       1  191270    59867       1  FALSE   1  801     0.00000   12.161441
+## 6       7   36780   178198       1  FALSE   0 1169     1.94591   10.512709
+##   NounFreq_log MIScore_log order           JP rating RaterA RaterB Agreement
+## 1     9.818583           0     3 積極的な性格      1     NA     NA        NA
+## 2    11.623223           0     6     安い料金      1     NA     NA        NA
+## 3    11.461243           0    54       闇社会      1     NA     NA        NA
+## 4    11.651896           0     7 美味しい季節      1     NA     NA        NA
+## 5    10.999881           0    45       遠い目      3     NA     NA        NA
+## 6    12.090651           0    19     軽い質問      3     NA     NA        NA
+##   Final z.ColFreq_log z.AdjFreq_log z.NounFreq_log z.MIScore_log   z.rating
+## 1    NA    -0.5850149    -0.1677051    -0.97279932           NaN -1.2047577
+## 2    NA    -0.5850149    -1.0319593     0.55688039           NaN -1.2047577
+## 3    NA    -0.5850149     0.6756896     0.41957999           NaN -1.2047577
+## 4    NA    -0.5850149    -1.7957153     0.58118470           NaN -1.2047577
+## 5    NA    -0.5850149     1.5207093     0.02851249           NaN  0.6561062
+## 6    NA     1.7308412    -0.1961630     0.95308956           NaN  0.6561062
+##   Itemtype_c Itemtype_d_Base Itemtype_d_J p0
+## 1        0.5               1            0  0
+## 2        0.5               1            0  0
+## 3        0.5               1            0  0
+## 4        0.5               1            0  0
+## 5        0.5               1            0  0
+## 6        0.5               1            0  0</code></pre>
+<p>こうすると，p0という変数はz.oqptが-1.8636284のときに0となっていることがわかります。つまり，p0という変数は，z.oqptが最小値のときがreference
+levelになります。よって，z.oqptのかわりにp0という変数を入れて次のようにモデルを作ったときのもう一方の変数（<code>Itemtype_d_J</code>）の係数を見る（頑健にいくなら95%CIを計算して信頼区間がゼロを含むかを確認）ことで，熟達度が最小値のときのもう一方の変数の影響を検討できます。</p>
+<div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb227-1"><a href="#cb227-1" tabindex="-1"></a>m_n5<span class="ot">&lt;-</span><span class="fu">list</span>()</span>
+<span id="cb227-2"><a href="#cb227-2" tabindex="-1"></a><span class="fu">system.time</span>(m_n5[[<span class="dv">1</span>]] <span class="ot">&lt;-</span><span class="fu">glmer</span>(res <span class="sc">~</span> z.ColFreq_log<span class="sc">+</span>p0<span class="sc">*</span>Itemtype_d_J<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>Itemtype_d_J<span class="sc">|</span>subject)<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>itemID),</span>
+<span id="cb227-3"><a href="#cb227-3" tabindex="-1"></a>             <span class="at">data =</span> dat_n2,</span>
+<span id="cb227-4"><a href="#cb227-4" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
+<span id="cb227-5"><a href="#cb227-5" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
+<pre><code>##    user  system elapsed 
+##   1.113   0.003   1.116</code></pre>
+<div class="sourceCode" id="cb229"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb229-1"><a href="#cb229-1" tabindex="-1"></a><span class="fu">summary</span>(m_n5[[<span class="dv">1</span>]])</span></code></pre></div>
+<pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: res ~ z.ColFreq_log + p0 * Itemtype_d_J + (1 + Itemtype_d_J |  
+##     subject) + (1 | itemID)
+##    Data: dat_n2
+## Control: glmerControl(optimizer = c(&quot;bobyqa&quot;), optCtrl = list(maxfun = 2e+05))
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   2893.6   2947.6  -1437.8   2875.6     2967 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -4.3958 -0.4533  0.3137  0.5080  2.8731 
+## 
+## Random effects:
+##  Groups  Name         Variance Std.Dev. Corr
+##  itemID  (Intercept)  1.02946  1.0146       
+##  subject (Intercept)  0.52733  0.7262       
+##          Itemtype_d_J 0.07928  0.2816   0.59
+## Number of obs: 2976, groups:  itemID, 93; subject, 32
+## 
+## Fixed effects:
+##                 Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)      0.63995    0.39742   1.610 0.107344    
+## z.ColFreq_log   -0.41004    0.11722  -3.498 0.000468 ***
+## p0              -0.09596    0.15528  -0.618 0.536593    
+## Itemtype_d_J     0.63272    0.35196   1.798 0.072220 .  
+## p0:Itemtype_d_J  0.27957    0.11680   2.393 0.016689 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr) z.ClF_ p0     Itm__J
+## z.ColFrq_lg  0.006                     
+## p0          -0.748  0.002              
+## Itemtyp_d_J -0.450 -0.017  0.129       
+## p0:Itmty__J  0.152 -0.006 -0.198 -0.631</code></pre>
+<p>上でやったemmeans関数の出力結果と見比べてみてください。推定値（Estimate)と有意確率が同じになっていると思います。これを同じことを，25,
+50, 75,
+100パーセンタイルでもやれば，emmeansと同じことができます（どのポイントで推定するかはemmeansでもこの方法でも任意に選べます）。</p>
 </div>
 <div id="結果の報告" class="slide section level1">
 <h1>結果の報告</h1>
@@ -3737,9 +3866,9 @@ level）にしたダミー変数を使って回帰モデルを作ってみます
 「統計ワークショップ」JACET英語語彙・英語辞書・リーディング研究会合同研究会.
 早稲田大学.<a href="https://github.com/tam07pb915/JACET-SIG_GLMM-Workshop">資料</a></li>
 </ul></li>
-<li>今回は割りとデータ分析のかなり泥臭い部分満載でしたが，これを補う資料が下記の資料です</li>
+<li>今回はわりとデータ分析のかなり泥臭い部分満載でしたが，これを補う資料が下記の資料です</li>
 <li><a href="https://speakerdeck.com/tam07pb915/2021-11-06-lmm-and-glmm">一般化線形混合モデルの実践：気をつけたい3つのポイント</a></li>
-<li>論文での報告など，今回扱いきれなかった部分は上記資料を御覧ください</li>
+<li>論文での報告など，今回扱いきれなかった部分は上記資料と次ページの参考文献を御覧ください</li>
 </ul>
 </div>
 <div id="参考文献リスト" class="slide section level1">
