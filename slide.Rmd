@@ -145,7 +145,10 @@ $$Y_{si} = \beta_0 + \beta_1 X_i + e_{si}, \quad e_{si} \sim N(0, \sigma^2)$$
 * $\beta_0$: 固定効果の切片
 * $\beta_1$: 固定効果の傾き
 * $X_i$: 独立変数（または説明変数）
-* $e_{si}$: 平均が0，分散$\sigma^2$の正規分布($N$)に従う誤差  
+* $e_{si}$: 平均が0，分散$\sigma^2$の正規分布($N$)に従う誤差 
+* Rのコードだと下記のようになります。　　
+
+`lm(Y ~ X, data=data)`  
 
 ## 混合効果モデルの回帰式
 ### 切片に変量効果を考慮したモデル
@@ -160,7 +163,10 @@ $$ Y_{si} = \beta_0 + \color{Red}{S_{0s}} + \beta_1 X_i + e_{si},\\
 * $X_i$: 独立変数（または説明変数）
 * $e_{si}$: 平均が0，分散$\sigma^2$の正規分布($N$)に従う誤差
 * $\color{Red}{S_{0s}}$: 参加者ごとに変動する切片（ランダム切片）で，平均が0，$\tau_{00}^2$の正規分布（$N$）に従う
-* ラテンのシンボルである$\beta_0$，$\beta_1$, $\sigma^2$, $\tau_{00}^2$はすべてパラメータで，これを推定することになる  
+* ラテンのシンボルである$\beta_0$，$\beta_1$, $\sigma^2$, $\tau_{00}^2$はすべてパラメータで，これを推定することになる
+* Rのコードだと下記のようになります。  
+
+`model <-lmer(Y ~ X + (1|subject), data=data)`  
 
 
 ### 参加者だけではなく項目の切片にも変量効果を考慮したモデル
@@ -178,7 +184,10 @@ $$
 * $\color{Red}{I_{0i}}$: 項目ごとに変動する切片（ランダム切片）で，平均が0，$\omega_{00}^2$の正規分布（$N$）に従う
 * $\beta_1$: 固定効果の傾き
 * $X_i$: 独立変数（または説明変数）
-* $e_{si}$: 平均が0，分散$\sigma^2$の正規分布($N$)に従う誤差  
+* $e_{si}$: 平均が0，分散$\sigma^2$の正規分布($N$)に従う誤差
+* Rのコードだと下記のようになります。    
+
+`model <-lmer(Y ~ X + (1|subject)+(1|item), data=data)`  
 
 
 ### 切片だけではなく傾きの変量効果も考慮したモデル(まずは参加者の傾きだけ)
@@ -212,6 +221,9 @@ $$
   * $\color{Red}{\tau_{11}^2}$: 参加者のランダム傾きの分散
   * $\color{Red}{\rho}$: 参加者のランダム切片とランダム傾きの間の相関係数
   * $\color{Red}{\rho \tau_{00} \tau_{11}}$: 参加者のランダム切片とランダム傾きの共分散  
+  * Rのコードだと下記のようになります。  
+
+`model <-lmer(Y ~ X + (1+X|subject)+(1|item), data=data)`    
   
 ### 項目の傾きも入れたモデル（最大モデル）
 
@@ -264,7 +276,10 @@ e_{si} \sim N(0, \sigma^2)
   * $\color{Red}{\omega_{00}^2}$: 項目のランダム切片の分散
   * $\color{Red}{\omega_{11}^2}$: 項目のランダム傾きの分散
   * $\color{Red}{\rho}$: 項目のランダム切片とランダム傾きの間の相関係数
-  * $\color{Red}{\rho \omega_{00} \omega_{11}}$: 項目のランダム切片とランダム傾きの共分散 
+  * $\color{Red}{\rho \omega_{00} \omega_{11}}$: 項目のランダム切片とランダム傾きの共分散
+  * Rのコードだと下記のようになります。  
+
+`model <-lmer(Y ~ X + (1+X|subject)+(1+X|item), data=data)`  
   
 ## いくつかのポイント
 * 統制のとれた項目（問題アイテム，刺激文）であれば，基本的には項目のランダム効果は参加者のそれより小さくなる傾向があります
@@ -364,6 +379,7 @@ install.packages("psych") #記述統計
 install.packages("performance") #信頼性係数等
 install.packages("irr") #評定者間信頼性
 install.packages("gplots") #可視化
+install.packages("car") #モデルの評価
 ```
 
 ## パッケージの読み込み
@@ -378,17 +394,19 @@ library(psych)
 library(performance)
 library(irr)
 library(gplots)
+library(car)
 ```
+
 
 ## データの読み込み
 Terai et al. (2023)のデータを読み込みます。必ず`AJ.csv`のファイルが今作業しているフォルダの中にあることを確認してください。
 
-```{r, cache=TRUE}
+```{r}
 AJ <-read.csv("AJ.csv", header = T)[,-1] #[,-1]がついているのは，1列目の行番号が不要だからです
 ```
 
 ## データの確認
-```{r, cache=TRUE}
+```{r}
 head(AJ)
 ```
 
@@ -408,7 +426,7 @@ head(AJ)
 
 ## 課題の信頼性係数（Cronbach's alpha）をチェック
 まずは課題の信頼性をチェックします。ただ，データの型がその分析のために合っていませんよね？回帰モデルのためには縦型（long型）のデータ形式である必要がありますが，項目分析や信頼性係数の算出のためには行が項目，列が参加者の行列になっている必要があります。
-```{r,warning=FALSE, cache=TRUE}
+```{r,warning=FALSE}
 AJ %>%
   select(subject, itemID, res) %>% #被験者ID，項目ID，参加者の0/1の反応だけを選んでね
   pivot_wider(names_from = itemID, values_from = res) %>% #itemIDを列番号にして，セルに入る数値はresから持ってきてね
@@ -422,7 +440,7 @@ AJ %>%
 
 別の関数でもCronbach's alphaを算出。
 
-```{r, cache=TRUE}
+```{r}
 AJ %>% 
   select(subject, itemID,res) %>% 
   pivot_wider(.,names_from = itemID,values_from = res) %>% 
@@ -441,7 +459,7 @@ AJ$ColFreq<-AJ$ColFreq+1
 AJ$MIScore<-AJ$MIScore+1
 ```
 
-```{r, cache=TRUE}
+```{r}
 AJ%>%
   mutate(across(c(ColFreq, AdjFreq, NounFreq, MIScore),log,.names = "{.col}_log"))->AJ
 head(AJ) 
@@ -852,12 +870,15 @@ summary(m_y3[[1]])
 m_y4<-list()
 ```
 
+下記のコードでは，`glmer()`関数を，`system.time()`という関数に渡しています。これは，計算にどれくらいの時間がかかるかを可視化するためです。今回はそこまで時間がかかりませんが，データセットの大きさやモデルの複雑さによっては，かなりの時間がかかる場合もあります。コードを共有する際に，データを再分析する側の人が，どれくらいの時間がかかるのか，コードを実行する前にわかるように，処理時間が表示されるようにしています。結果の単位は「秒」です。
+
 ```{r, cache=T}
 system.time(m_y4[[1]] <-glmer(res ~ z.MIScore_log+z.ColFreq_log+z.oqpt*Itemtype_c+(1+z.oqpt*Itemtype_c|subject)+(1+z.oqpt+z.oqpt:Itemtype_c|itemID),
              data = dat_y,
              family=binomial,
              glmerControl(optimizer=c("bobyqa"),optCtrl = list(maxfun=2e5))))
 ```
+
 試しに今熟達度とコロケーションタイプの交互作用を入れたモデルを作ってみましたが，警告が出ました。この警告は，推定しようとしている分散のパラメータが0に近いものがあると出てきます。モデルが複雑すぎるので，ランダム効果を削る事を考えます。この際に，主成分分析を行い，分散が0に近いものがあれば問題があります。
 
 ```{r}
@@ -871,10 +892,12 @@ system.time(m_y4[[2]] <-glmer(res ~ z.MIScore_log+z.ColFreq_log+z.oqpt*Itemtype_
              glmerControl(optimizer=c("bobyqa"),optCtrl = list(maxfun=2e5))))
 ```
 相関パラメータを外してもだめなようです。では，また主成分分析の結果を見てみましょう。
+
 ```{r}
 rePCA(m_y4[[2]]) %>% summary
 ```
 項目，参加者，両方の変量効果に分散がゼロのものが含まれています。では，モデルの中身を見てみましょう。
+
 ```{r}
 summary(m_y4[[2]])
 ```
@@ -957,6 +980,16 @@ anova(m_y4[[7]],m_y4[[6]])
 ```{r}
 summary(m_y4[[6]])
 ```
+
+## モデルの評価
+
+回帰モデルは，説明変数間の相関が高いと多重共線性の問題があります。その評価のために，VIF(Variance Inflation Factor)をチェックします。このVIFの値がいくつなら問題になるのかは諸説ありますが，田中他 (2008, p.116）は，VIFが5より大きければ多重共線性の可能性が大きく注意が必要と述べています。
+
+```{r}
+vif(m_y4[[6]])
+```
+
+
 ## 交互作用の図示
 残念ながら交互作用は非有意ですが，そのことを図示して確かめましょう。
 
@@ -971,43 +1004,114 @@ plot_model(m_y4[[6]],type = "int")
 - 次に，熟達度テストスコアの係数が有意ですから，熟達度があがれば，容認性判断課題の正答率もあがるといえます
 - さらに，コロケーションタイプの係数も有意ですから，JE項目のほうが，Eonly項目よりも容認性判断課題の正答率が高いといえます
 
+# オッズ比の算出
+## 効果量（オッズ比）を求める①
+* ある事象の起こる確率が $p$で表されるとき，オッズは次のようになる
+
+$$Odds = \frac{p}{1-p}$$
+
+* オッズ比はオッズの比で表されるので，確率 $p$と確率 $q$のオッズ比は次のようになる
+
+$$\frac{\frac{p}{1-p}}{\frac{q}{1-q}}$$
+
+
+## 効果量（オッズ比）を求める②
+* ロジット関数を思い出すと，これはオッズの対数であり，商の対数は対数の差と等しいので次のように表せる
+
+$${\rm log}(\frac{q_{i}}{1-q_{i}})={\rm log}(q_{i})-log(1-q_{i})$$
+
+* つまり，2つの確率のロジットの差がオッズ比の対数である
+
+$${\rm log}(\frac{p}{1-p})-{\rm log}(\frac{q}{1-q})={\rm log}(\frac{\frac{p}{1-p}}{\frac{q}{1-q}})$$
+
+## 効果量（オッズ比）を求める③
+* このオッズ比の仕組みが今理解できなくても大丈夫です
+* 大事なことは次のこと
+
+## [偏回帰係数を指数変換するとオッズ比]{.text-danger}
+
+* Rではexp()という関数があるので，オッズ比は次のように求められる
+```{r}
+fixef(m_y4[[6]]) %>% #fixefは固定効果の係数を取り出す関数
+  exp()
+```
+
+例えば，z.oqptのオッズ比は`r round(fixef(m_y4[[6]])[4] %>% exp(),3) `ですから，z.oqptが1単位増加すると（今回は正規化しているので，熟達度テストの1単位あたりの変動は1SDの変動になります），容認性判断課題に正答する確率が1.589倍あがると解釈できます。
+
 # NOデータ分析
+## ちょっとした注意事項
+
+最初に，翻訳データと熟達度テストデータを結合し，その後に容認性判断課題のデータとくっつけました。したがって，今，Baselineアイテムの行には熟達度テストデータが入っていません。また，Baselineアイテムは翻訳課題に含まれていないので，翻訳の難しさの評定値データもありません。つまり，こちらの分析にはz.ratingの変数は使えません。また，どうにかして熟達度テストデータをBaselineアイテムの行に持ってこないといけません。
+
+`oqpt_sum`データに被験者番号を付与して，その番号を使って元のデータと紐づけます。
+
+```{r}
+head(oqpt_sum)
+
+oqpt_sum$subject<-1:nrow(oqpt)
+names(oqpt_sum)[1]<-"oqpt"
+```
+
+結合には，`left_join()`関数を使います。
+
+```{r}
+left_join(oqpt_sum,dat_n, by="subject") %>% 
+  dplyr::select(-contains(".y")) %>% 
+  dplyr::filter(.,subject != 1 & subject != 16)->dat_n2
+```
+
+.xという識別子がつくので，それを削除します。
+
+```{r}
+names(dat_n2) <- gsub("\\.x$", "", names(dat_n2))
+```
+
+`Baseline`項目にも`oqpt`や`z.oqpt`のスコアの列が入っていることを確認しましょう。
+
+```{r}
+dat_n2 %>% 
+  filter(Itemtype == "Baseline") %>% 
+  head()
+```
+
+では，YESデータセットの分析と同様に，まずは共変量としてどの変数を入れるかを検討します。　　
+
 ```{r}
 m_n<-list()
 ```
 
 ##  切片のみモデル
-```{r, cache=T}
 
+```{r}
 m_n[[1]] <-glmer(res ~ (1|subject)+(1|itemID),
-               data = dat_n, #データの指定
+               data = dat_n2, #データの指定
                family=binomial, #binomialにするとロジスティック回帰になります
                glmerControl(optimizer=c("bobyqa"),optCtrl = list(maxfun=2e5))) #これはおまじないだと思ってください
 ```
 
 ####  コロケーションの頻度を入れたモデル
-```{r, cache=T}
+```{r}
 
 m_n[[2]] <-glmer(res ~ z.ColFreq_log+(1|subject)+(1|itemID),
-               data = dat_n,
+               data = dat_n2,
                family=binomial,
                glmerControl(optimizer=c("bobyqa"),optCtrl = list(maxfun=2e5)))
 ```
 
 ####  形容詞の頻度を入れたモデル
-```{r, cache=T}
+```{r}
 
 m_n[[3]] <-glmer(res ~ z.AdjFreq_log+(1|subject)+(1|itemID),
-               data = dat_n,
+               data = dat_n2,
                family=binomial,
                glmerControl(optimizer=c("bobyqa"),optCtrl = list(maxfun=2e5)))
 ```
 
 #### 名詞の頻度を入れたモデル
-```{r, cache=T}
+```{r}
 
 m_n[[4]] <-glmer(res ~ z.NounFreq_log+(1|subject)+(1|itemID),
-               data = dat_n,
+               data = dat_n2,
                family=binomial,
                glmerControl(optimizer=c("bobyqa"),optCtrl = list(maxfun=2e5)))
 ```
@@ -1036,7 +1140,7 @@ m_n2[[1]]<-m_n[[2]]
 
 ## 新たに変数を追加
 先程と同じようにすべての式を書いてもいいのですが，面倒なので，`update()`関数を使います。
-```{r, cache=T}
+```{r}
 m_n2[[2]]<-update(m_n2[[1]],.~.+z.AdjFreq_log)
 m_n2[[3]]<-update(m_n2[[1]],.~.+z.NounFreq_log)
 
@@ -1052,34 +1156,6 @@ sapply(m_n2,AIC)%>%which.min
 ```{r}
 summary(m_n2[[1]])
 ```
-# ちょっとした注意事項
-
-最初に，翻訳データと熟達度テストデータを結合し，その後に容認性判断課題のデータとくっつけました。したがって，今，Baselineアイテムの行には熟達度テストデータが入っていません。また，Baselineアイテムは翻訳課題に含まれていないので，翻訳の難しさの評定値データもありません。つまり，こちらの分析にはz.ratingの変数は使えません。また，どうにかして熟達度テストデータをBaselineアイテムの行に持ってこないといけません。
-
-`oqpt_sum`データに被験者番号を付与して，その番号を使って元のデータと紐づけます。
-
-```{r}
-head(oqpt_sum)
-
-oqpt_sum$subject<-1:nrow(oqpt)
-names(oqpt_sum)[1]<-"oqpt"
-```
-
-結合には，`left_join()`関数を使います。
-
-```{r}
-left_join(oqpt_sum,dat_n, by="subject") %>% 
-  dplyr::select(-contains(".y")) %>% 
-  dplyr::filter(.,subject != 1 & subject != 16)->dat_n2
-```
-
-.xという識別子がつくので，それを削除します。
-
-```{r}
-names(dat_n2) <- gsub("\\.x$", "", names(dat_n2))
-
-```
-
 
 # NOデータ分析の本番はここから
 それでは，ここで興味のある3つの変数の分析に入りましょう。
@@ -1088,7 +1164,7 @@ names(dat_n2) <- gsub("\\.x$", "", names(dat_n2))
 m_n3<-list()
 ```
 
-```{r, cache=T}
+```{r}
 system.time(m_n3[[1]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_c+(1+z.oqpt*Itemtype_c|subject)+(1+z.oqpt+z.oqpt:Itemtype_c|itemID),
              data = dat_n2,
              family=binomial,
@@ -1102,7 +1178,7 @@ rePCA(m_n3[[1]]) %>% summary
 
 分散がゼロの要素があります。まずは相関パラメータを外してみましょう。
 
-```{r, cache=T}
+```{r}
 system.time(m_n3[[2]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_c+(1+z.oqpt*Itemtype_c||subject)+(1+z.oqpt+z.oqpt:Itemtype_c||itemID),
              data = dat_n2,
              family=binomial,
@@ -1117,7 +1193,7 @@ summary(m_n3[[2]])
 ```
 項目の交互作用の傾きがゼロなので，それを抜きます。項目タイプのランダム傾きはモデルに入らないデザインなので抜きます。
 
-```{r, cache=T}
+```{r}
 system.time(m_n3[[3]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_c+(1+z.oqpt*Itemtype_c||subject)+(1+z.oqpt||itemID),
              data = dat_n2,
              family=binomial,
@@ -1133,20 +1209,25 @@ rePCA(m_n3[[3]]) %>% summary
 summary(m_n3[[3]])
 ```
 
-```{r, cache=T}
+項目の`z.oqpt`の傾きを除きます。
+
+```{r}
 system.time(m_n3[[4]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_c+(1+z.oqpt+Itemtype_c||subject)+(1|itemID),
              data = dat_n2,
              family=binomial,
              glmerControl(optimizer=c("bobyqa"),optCtrl = list(maxfun=2e5))))
 ```
+
 まだ問題があります。
 
-```{r, cache=T}
+```{r}
 rePCA(m_n3[[4]]) %>% summary
 summary(m_n3[[4]])
 ```
 
-```{r, cache=T}
+参加者の`z.oqpt`の傾きを除きます。
+
+```{r}
 system.time(m_n3[[5]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_c+(1+Itemtype_c||subject)+(1|itemID),
              data = dat_n2,
              family=binomial,
@@ -1157,9 +1238,10 @@ system.time(m_n3[[5]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_c+(1+Itemtype_
 ```{r}
 summary(m_n3[[5]])
 ```
+
 相関パラメータを戻してみましょう。
 
-```{r, cache=T}
+```{r}
 system.time(m_n3[[6]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_c+(1+Itemtype_c|subject)+(1|itemID),
              data = dat_n2,
              family=binomial,
@@ -1178,13 +1260,24 @@ Mtuschek et al. (2017)では，α ~LRT~ = .10 or .20の基準で有意ならよ�
 summary(m_n3[[6]])
 ```
 
+## モデルの評価
+
+VIFを確認しておきます。
+
+```{r}
+vif(m_n3[[6]])
+```
+
+すべて1程度ですので問題なさそうです。
+
 ## 解釈
 結果の表を見てみると，固定効果の推定結果の一番下の行にある交互作用項が有意になっています。
 
 ## 交互作用項の図示
-```{r, cache=T}
+```{r}
 plot_model(m_n3[[6]],type = "int")
 ```
+
 図を見てみると，赤い線（Baseline）と青い線（Jonly）で傾きが違いそうです。では，実際にどうなのか見てみましょう。
 
 ## 単純主効果
@@ -1202,7 +1295,7 @@ m_n4<-list()
 ```
 
 さきほどのダミー変数を使ってもう一度最終モデルを分析します。
-```{r, cache=T}
+```{r}
 system.time(m_n4[[1]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_d_Base+(1+Itemtype_d_Base|subject)+(1|itemID),
              data = dat_n2,
              family=binomial,
@@ -1212,15 +1305,15 @@ system.time(m_n4[[1]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_d_Base+(1+Item
 summary(m_n4[[1]])
 ```
 
-さきほどのモデルと比較して，`z.oqpt`の推定値が変わっていることがわかります。今，`Itemtype_d_Base`はBaseline項目がゼロのときですから，Baseline項目については`z.oqpt`の推定値が`r fixef(m_n4[[1]])[3]`だとわかります。
+さきほどのモデルと比較して，`z.oqpt`の推定値が変わっていることがわかります。今，`Itemtype_d_Base`はBaseline項目がゼロのときですから，Baseline項目については`z.oqpt`の推定値が`r round(fixef(m_n4[[1]])[3],3)`だとわかります。
 
 それでは，Jonly条件のときはどうでしょうか。今度はJonlyを0（reference level）にしたダミー変数を使って回帰モデルを作ってみます。
 
 ```{r}
-ifelse(dat_n2$Itemtype == "Jonly", 0, 1) -> dat_n2$Itemtype_d_J #Baselineをゼロにして基準レベルにします。
+ifelse(dat_n2$Itemtype == "Jonly", 0, 1) -> dat_n2$Itemtype_d_J #Jonlyをゼロにして基準レベルにします。
 ```
 
-```{r, cache=T}
+```{r}
 system.time(m_n4[[2]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_d_J+(1+Itemtype_d_J|subject)+(1|itemID),
              data = dat_n2,
              family=binomial,
@@ -1231,14 +1324,16 @@ system.time(m_n4[[2]] <-glmer(res ~ z.ColFreq_log+z.oqpt*Itemtype_d_J+(1+Itemtyp
 ```{r}
 summary(m_n4[[2]])
 ```
+
 先ほどと比較すると，`z.oqpt`の推定値の符号が逆になっていることがわかります。しかしながら，傾きは有意ではありません。よって，Jonly条件のときも熟達度によって容認性判断課題の正答率が変わるとは言えないようです。
 
-では，JonlyとBaselineの正答率の差が，熟達度によって変わるという可能性があるかもしれません。これを調べるために，熟達度テストスコアのある特定の点におけるJonlyとBaselineの差を`emmeans()`関数を使って調べてみましょう。
+では交互作用が意味するところはなんなのでしょうか。可能性として，JonlyとBaselineの正答率の差が，熟達度によって変わるということが考えられます。これを調べるために，熟達度テストスコアのある特定の点におけるJonlyとBaselineの差を`emmeans()`関数を使って調べてみましょう。
 
 ```{r}
 emmeans(m_n4[[2]],~z.oqpt*Itemtype_d_J,at=list(Itemtype_d_J=c("Jonly","Baseline"),z.oqpt=c(min(oqpt_sum$z.oqpt):max(oqpt_sum$z.oqpt))))%>% #範囲は熟達度テストのzスコアの最小値から最大値まで
 contrast(.,"pairwise",by="z.oqpt")
 ```
+
 ### 解釈
 - z.oqpt = -1.864のとき（熟達度が最も低いとき），2水準の差は-0.641で非有意になっています（_p_ = .067）。
 - しかしながら，熟達度が高くなれば，JonlyとBaselineの差は統計的に有意になっています。
@@ -1258,7 +1353,7 @@ oqpt_sum %>%
   
 ```
 
-見てみると，26点です。これはCEFRでいうとA2レベルくらいですのでA2レベルくらいだと，Baselineに対して「これは英語として自然ではない」と考えるのとJonlyに対して「これは英語として自然ではない」と答えるのが同じくらいの確率だということになります。
+見てみると，26点です。これはCEFRでいうとA2レベルくらいです。A2レベルくらいだと，Baselineに対して「これは英語として自然ではない」と考えるのとJonlyに対して「これは英語として自然ではない」と答えるのが同じくらいの確率だということになります。
 
 ただし，26点の学習者はたった1名であり，_p_値も有意水準の5%に近いので，この結果を強く主張することには慎重になるべきでしょう。
 
@@ -1281,9 +1376,12 @@ oqpt_sum %>%
 - 1つの固定効果の推定値の信頼区間を求めるだけでも，データセットの大きさによっては数時間以上かかることもあります（推定方法によって早くできるものもありますが，基本的には早い＝不正確）
 
 # おわりに
+- ロジスティック回帰については，下記のテクニカルレポートと，それに基づくWS資料もあります。合わせてお読みいただくと理解が深まるかと思います
+  - 田村祐（2016）「外国語教育研究における二値データの分析－ロジスティック回帰を例に－」『外国語教育メディア学会中部支部外国語教育基礎研究部会2015年度報告論集』29–82.[リンク](https://www.letchubu.net/modules/xpwiki/?2015%E5%B9%B4%E5%BA%A6%E5%A0%B1%E5%91%8A%E8%AB%96%E9%9B%86)
+  - 田村祐 (2019). 「統計ワークショップ」JACET英語語彙・英語辞書・リーディング研究会合同研究会. 早稲田大学.[資料](https://github.com/tam07pb915/JACET-SIG_GLMM-Workshop)
 - 今回は割りとデータ分析のかなり泥臭い部分満載でしたが，これを補う資料が下記の資料です
 - [一般化線形混合モデルの実践：気をつけたい3つのポイント](https://speakerdeck.com/tam07pb915/2021-11-06-lmm-and-glmm)
-- 論文での報告など，今回扱いきれなかった部分は上記資料を御覧ください。
+- 論文での報告など，今回扱いきれなかった部分は上記資料を御覧ください
 
 
 # 参考文献リスト
@@ -1306,7 +1404,8 @@ oqpt_sum %>%
 - 新井学, & Roland D. (2016). 「言語理解研究における眼球運動データ及び読み時間データの統計分析」. 統計数理, 64(2), 201–231.
 - 井関龍太. (2020). 「心理学者は反応時間をどう分析するか」. 基礎心理学研究, 38(2), 243–249.
 - 久保拓弥 (2012). 『データ解析のための統計モデリング入門』 東京: 岩波書店.
-- 清水裕士 (2014).『個人と集団のマルチレベル分析』京都：ナカニシヤ出版
+- 清水裕士 (2014).『個人と集団のマルチレベル分析』京都：ナカニシヤ出版.
+-  田中豊・森川敏彦・山中竹春・ 冨田誠 (2008) 『一般化線形モデル入門 原著第2版』 共立出版.
 - 田村祐（2016）「外国語教育研究における二値データの分析－ロジスティック回帰を例に－」『外国語教育メディア学会中部支部外国語教育基礎研究部会2015年度報告論集』29–82.[リンク](https://www.letchubu.net/modules/xpwiki/?2015%E5%B9%B4%E5%BA%A6%E5%A0%B1%E5%91%8A%E8%AB%96%E9%9B%86)
 - 山口剛. (2018). 【心理学系】混合効果モデルの利用: 刺激の変量効果への対処 (2). 日本バイオフィードバック学会. https://doi.org/10.20595/jjbf.45.2_93
 
