@@ -1023,18 +1023,19 @@ influence）が容認性判断課題の正答率に与える影響は熟達度�
 <h1>準備</h1>
 <h2 id="rstudioの起動">RStudioの起動</h2>
 <ul>
-<li>ファイルのダウンロード</li>
-</ul>
+<li>ファイルのダウンロード
 <ol style="list-style-type: decimal">
-<li>Clone or download-&gt;Download ZIPでファイルをすべてDLし，解凍</li>
+<li><a href="https://github.com/tam07pb915/JLTA_2023_WS">GitHub</a>にいき，“Resources.zip”をクリック</li>
+<li>右端のダウンロードアイコンをクリックしてダウンロードして，zipファイルを解凍</li>
 <li>解凍したZIPファイルの中のWS.Rprojを起動</li>
 <li>slide.Rmdの中にあるRコードを走らせていく</li>
-</ol>
+</ol></li>
+</ul>
 <h2 id="すすめ方">すすめ方</h2>
 <ul>
 <li>ここからは，実際にRを動かしながらデータ分析を行っていきます</li>
 <li>これより先，灰色の背景で囲まれた部分は全てRのコードを示しているとご理解ください</li>
-<li>GitHubから.Rmdファイルまたは.htmlファイルをDLしてコピペすることをおすすめします</li>
+<li>GitHubからslide.Rmdファイルまたはslide.htmlファイルをDLしてコピペすることをおすすめします</li>
 </ul>
 </div>
 <div id="データ分析の下準備" class="slide section level1">
@@ -2878,7 +2879,7 @@ Scoreを入れたモデルをベースに</h2>
 <span id="cb125-4"><a href="#cb125-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##   1.697   0.006   1.707</code></pre>
+##   1.699   0.009   1.709</code></pre>
 <p>残念ながら収束しません。</p>
 <div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" tabindex="-1"></a><span class="fu">summary</span>(m_y4[[<span class="dv">5</span>]])</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -2930,14 +2931,14 @@ Scoreを入れたモデルをベースに</h2>
 <span id="cb130-3"><a href="#cb130-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb130-4"><a href="#cb130-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.043   0.004   1.046</code></pre>
+##   1.048   0.003   1.053</code></pre>
 <p>収束したようです。では，参加者のランダム傾きの相関パラメータを戻してみましょう。</p>
 <div class="sourceCode" id="cb132"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" tabindex="-1"></a><span class="fu">system.time</span>(m_y4[[<span class="dv">7</span>]] <span class="ot">&lt;-</span><span class="fu">glmer</span>(res <span class="sc">~</span> z.MIScore_log<span class="sc">+</span>z.ColFreq_log<span class="sc">+</span>z.oqpt<span class="sc">*</span>Itemtype_c<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>z.oqpt<span class="sc">|</span>subject)<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>itemID),</span>
 <span id="cb132-2"><a href="#cb132-2" tabindex="-1"></a>             <span class="at">data =</span> dat_y,</span>
 <span id="cb132-3"><a href="#cb132-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb132-4"><a href="#cb132-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.081   0.004   1.085</code></pre>
+##   1.268   0.005   1.296</code></pre>
 <p>収束しました。尤度比検定してみます。</p>
 <div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" tabindex="-1"></a><span class="fu">anova</span>(m_y4[[<span class="dv">7</span>]],m_y4[[<span class="dv">6</span>]])</span></code></pre></div>
 <pre><code>## Data: dat_y
@@ -3116,6 +3117,7 @@ log}(\frac{\frac{p}{1-p}}{\frac{q}{1-q}})\]</span></p>
 ## 4       NA       -0.5
 ## 5       NA       -0.5
 ## 6       NA       -0.5</code></pre>
+<p>では，YESデータセットの分析と同様に，まずは共変量としてどの変数を入れるかを検討します。　　</p>
 <div class="sourceCode" id="cb150"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb150-1"><a href="#cb150-1" tabindex="-1"></a>m_n<span class="ot">&lt;-</span><span class="fu">list</span>()</span></code></pre></div>
 <h2 id="切片のみモデル-1">切片のみモデル</h2>
 <div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb151-1"><a href="#cb151-1" tabindex="-1"></a>m_n[[<span class="dv">1</span>]] <span class="ot">&lt;-</span><span class="fu">glmer</span>(res <span class="sc">~</span> (<span class="dv">1</span><span class="sc">|</span>subject)<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>itemID),</span>
@@ -3208,7 +3210,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb169-4"><a href="#cb169-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##  40.780   0.105  40.888</code></pre>
+##  43.089   0.161  43.716</code></pre>
 <p><code>?isSingular</code>のエラーが出ています。主成分分析の結果を見てみます。</p>
 <div class="sourceCode" id="cb172"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb172-1"><a href="#cb172-1" tabindex="-1"></a><span class="fu">rePCA</span>(m_n3[[<span class="dv">1</span>]]) <span class="sc">%&gt;%</span> summary</span></code></pre></div>
 <pre><code>## $itemID
@@ -3231,7 +3233,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb174-4"><a href="#cb174-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##  12.992   0.034  13.050</code></pre>
+##  12.477   0.055  12.547</code></pre>
 <p>まだ同じエラーが出ます。</p>
 <p>モデルの中身を見て，どれを除外するか，見当をつけましょう。</p>
 <div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb177-1"><a href="#cb177-1" tabindex="-1"></a><span class="fu">summary</span>(m_n3[[<span class="dv">2</span>]])</span></code></pre></div>
@@ -3287,7 +3289,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb179-4"><a href="#cb179-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##   8.844   0.040   8.895</code></pre>
+##   8.843   0.030   8.867</code></pre>
 <p>まだダメです。</p>
 <div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb182-1"><a href="#cb182-1" tabindex="-1"></a><span class="fu">rePCA</span>(m_n3[[<span class="dv">3</span>]]) <span class="sc">%&gt;%</span> summary</span></code></pre></div>
 <pre><code>## $itemID
@@ -3355,7 +3357,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb186-4"><a href="#cb186-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <pre><code>##    user  system elapsed 
-##   2.922   0.020   2.941</code></pre>
+##   2.926   0.031   2.958</code></pre>
 <p>まだ問題があります。</p>
 <div class="sourceCode" id="cb189"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb189-1"><a href="#cb189-1" tabindex="-1"></a><span class="fu">rePCA</span>(m_n3[[<span class="dv">4</span>]]) <span class="sc">%&gt;%</span> summary</span></code></pre></div>
 <pre><code>## $itemID
@@ -3420,7 +3422,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb193-3"><a href="#cb193-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb193-4"><a href="#cb193-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.624   0.010   1.634</code></pre>
+##   1.625   0.006   1.632</code></pre>
 <p>モデルが収束しました。</p>
 <div class="sourceCode" id="cb195"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb195-1"><a href="#cb195-1" tabindex="-1"></a><span class="fu">summary</span>(m_n3[[<span class="dv">5</span>]])</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -3467,7 +3469,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb197-3"><a href="#cb197-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb197-4"><a href="#cb197-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   2.011   0.006   2.017</code></pre>
+##   2.273   0.013   2.286</code></pre>
 <div class="sourceCode" id="cb199"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb199-1"><a href="#cb199-1" tabindex="-1"></a><span class="fu">anova</span>(m_n3[[<span class="dv">5</span>]],m_n3[[<span class="dv">6</span>]])</span></code></pre></div>
 <pre><code>## Data: dat_n2
 ## Models:
@@ -3541,7 +3543,7 @@ ScoreはBaselineとJonlyは計算できないので，ここでは考慮しま�
 <span id="cb208-3"><a href="#cb208-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb208-4"><a href="#cb208-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.098   0.005   1.103</code></pre>
+##   1.090   0.004   1.094</code></pre>
 <div class="sourceCode" id="cb210"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb210-1"><a href="#cb210-1" tabindex="-1"></a><span class="fu">summary</span>(m_n4[[<span class="dv">1</span>]])</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
@@ -3591,7 +3593,7 @@ level）にしたダミー変数を使って回帰モデルを作ってみます
 <span id="cb213-3"><a href="#cb213-3" tabindex="-1"></a>             <span class="at">family=</span>binomial,</span>
 <span id="cb213-4"><a href="#cb213-4" tabindex="-1"></a>             <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="fu">c</span>(<span class="st">&quot;bobyqa&quot;</span>),<span class="at">optCtrl =</span> <span class="fu">list</span>(<span class="at">maxfun=</span><span class="fl">2e5</span>))))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.901   0.004   1.906</code></pre>
+##   1.896   0.007   1.903</code></pre>
 <p>結果はいかに。</p>
 <div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb215-1"><a href="#cb215-1" tabindex="-1"></a><span class="fu">summary</span>(m_n4[[<span class="dv">2</span>]])</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
